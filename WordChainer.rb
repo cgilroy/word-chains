@@ -8,6 +8,8 @@ class WordChainer
                 @dictionary << line.chomp
             end
         end
+        @current_words = nil
+        @all_seen_words = nil
     end
 
     def printDict
@@ -30,7 +32,47 @@ class WordChainer
         words
     end
 
+    def run(source, target)
+        # debugger
+        @current_words = [source]
+        @all_seen_words = Hash.new()
+        @all_seen_words[source] = nil
+
+        while !@current_words.empty? && !@all_seen_words.has_key?(target) do
+            new_current_words = explore_current_words
+            @current_words = new_current_words
+        end
+
+        build_path(target)
+
+    end
+
+    def explore_current_words
+        # debugger
+        new_current_words = []
+        @current_words.each do |current_word|
+            adjacent_words(current_word).each do |adjacent_word|
+                if !@all_seen_words.include?(adjacent_word)
+                    new_current_words << adjacent_word
+                    @all_seen_words[adjacent_word] = current_word if !@all_seen_words.has_key?(adjacent_word)
+                end
+            end
+        end
+        new_current_words
+    end
+
+    def build_path(target)
+        # debugger
+        path = [target]
+        until @all_seen_words[target] == nil do
+            prev_word = @all_seen_words[target]
+            path << prev_word
+            target = prev_word
+        end
+        p path.reverse
+    end
+
 end
 
 x = WordChainer.new('dictionary.txt')
-x.adjacent_words('card')
+x.run('crow','meat')
